@@ -21,7 +21,7 @@ import "github.com/tnuanchuay/gcache"
 func main() {
 	cache := gcache.New()
 	cache.Set("key", "value")
-	operation1(cache)
+	doSmth(cache)
 }
 ```
 
