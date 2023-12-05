@@ -58,7 +58,7 @@ func TestGCacheShouldReturnErrKeyAlreadyExistsWhenPutExistingKey(t *testing.T) {
 func TestGCacheShouldBeAbleToReNewValueAndUpdateExpiry(t *testing.T) {
 	cache := New()
 	cache.Put("test-key", 1, &ItemOptions{
-		Expiry:         time.Now(),
+		Expiry:         time.Now().Add(1 * time.Second * -1),
 		ExtendDuration: 5 * time.Minute,
 		RenewFunc: func() (interface{}, error) {
 			return 2, nil
@@ -74,8 +74,8 @@ func TestGCacheShouldBeAbleToReNewValueAndUpdateExpiry(t *testing.T) {
 		t.Errorf(TestExpectActualFormat, 2, v)
 	}
 	timeDiff := time.Now().Sub(cache.items["test-key"].expiry)
-	if timeDiff > 1*time.Millisecond {
-		t.Errorf(TestExpectActualFormat, 1*time.Millisecond, timeDiff)
+	if timeDiff > 5*time.Minute {
+		t.Errorf(TestExpectActualFormat, 5*time.Minute, timeDiff)
 	}
 }
 

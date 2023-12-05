@@ -2,6 +2,7 @@ package gcache
 
 import (
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -49,10 +50,14 @@ func (c *Cache) Get(key string) (interface{}, error) {
 	var err error = nil
 
 	if item.expiry.Before(time.Now()) {
+		item.lock.Lock()
 		err = item.renew()
 		item.expiry = item.expiry.Add(item.extendDuration)
+		item.lock.Unlock()
 	}
 
+	item.lock.RLock()
+	defer item.lock.RUnlock()
 	return item.value, err
 }
 
@@ -61,6 +66,7 @@ type CacheItem struct {
 	extendDuration time.Duration
 	expiry         time.Time
 	valueReNewer   ReNewerFunc
+	lock           sync.RWMutex
 }
 
 type ReNewerFunc func() (interface{}, error)
